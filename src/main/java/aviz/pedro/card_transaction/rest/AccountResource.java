@@ -21,17 +21,16 @@ public class AccountResource {
 	}
 
 	@PostMapping
-	public ResponseEntity<AccountDto> post(@RequestBody AccountDto accountDto){
+	public ResponseEntity<AccountDto> post(@RequestBody AccountDto accountDto) {
 		Account account = accountService.createAccount(accountDto.getDocumentNumber());
-		return ResponseEntity.status(HttpStatus.CREATED).body( parseModelToDto(account));
+		return ResponseEntity.status(HttpStatus.CREATED).body(parseModelToDto(account));
 	}
 
 	@GetMapping("/{accountId}")
-	public ResponseEntity<AccountDto> get(@PathVariable Long accountId){
+	public ResponseEntity<AccountDto> get(@PathVariable Long accountId) {
 		Account account = accountService.getAccount(accountId);
-		return ResponseEntity.ok( parseModelToDto(account));
+		return ResponseEntity.ok(parseModelToDto(account));
 	}
-
 
 	private AccountDto parseModelToDto(Account account) {
 		return new ModelMapper().map(account, AccountDto.class);

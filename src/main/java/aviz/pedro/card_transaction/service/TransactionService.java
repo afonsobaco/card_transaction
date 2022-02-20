@@ -24,12 +24,17 @@ public class TransactionService implements ITransactionService {
 
 	@Override
 	public Transaction createTransaction(Long accountId, int operationTypeId, Double amount) {
-		Account account = accountService.getAccount(accountId);
-		if(account == null){
-			throw new AccountNotFoundException(String.format("There is no account with id: %s", accountId));
+		OperationType operationType = OperationType.of(operationTypeId);
+		if ((operationType.isDecreaseValue() && amount > 0) || (!operationType.isDecreaseValue() && amount < 0)) {
+			throw new IllegalArgumentException(
+					String.format("The operation type %d (%s) does not allow the value %f", operationTypeId,
+							operationType.getDescription(), amount));
 		}
 
-		OperationType operationType = OperationType.of(operationTypeId);
+		Account account = accountService.getAccount(accountId);
+		if (account == null) {
+			throw new AccountNotFoundException(String.format("There is no account with id: %s", accountId));
+		}
 
 		Transaction transaction = Transaction.builder()
 				.account(account)

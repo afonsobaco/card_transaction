@@ -3,10 +3,13 @@ package aviz.pedro.card_transaction.repository;
 import aviz.pedro.card_transaction.model.Account;
 import aviz.pedro.card_transaction.model.OperationType;
 import aviz.pedro.card_transaction.model.Transaction;
+import aviz.pedro.card_transaction.utils.AccountTestUtils;
+import aviz.pedro.card_transaction.utils.TransactionTestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -16,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataJpaTest
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
-@Sql({"/account.sql"})
+@Sql({ "/account.sql" })
 class TransactionRepositoryTest {
 
 	@Autowired
@@ -24,13 +27,11 @@ class TransactionRepositoryTest {
 
 	@Test
 	void save_shouldAutoGenerateAccountId() {
-		Long documentNumber = 12345678901L;
-		Long account_id = 2L;
-		Account account = Account.builder().documentNumber(documentNumber).id(account_id).build();
-
 		Double amount = 10.10;
 		OperationType operationType = OperationType.PURCHASE;
-		Transaction transaction = Transaction.builder().account(account).amount(amount).operationType(operationType).build();
+		Account account = AccountTestUtils.getAccount();
+
+		Transaction transaction = TransactionTestUtils.getTransaction(amount, operationType, account);
 		Transaction result = transactionRepository.save(transaction);
 
 		assertNotNull(result);
@@ -40,6 +41,25 @@ class TransactionRepositoryTest {
 		assertEquals(transaction.getAmount(), result.getAmount());
 		assertEquals(transaction.getOperationType(), result.getOperationType());
 		assertNotNull(transaction.getEventDate());
+	}
+
+	@Test
+	void save_shouldThrowExceptionWhenAmountIsNull() {
+		Transaction transaction = TransactionTestUtils.getTransaction(null, OperationType.PURCHASE,
+				AccountTestUtils.getAccount());
+		assertThrows(DataIntegrityViolationException.class, () -> transactionRepository.save(transaction));
+	}
+
+	@Test
+	void save_shouldThrowExceptionWhenOperationTypeIsNull() {
+		Transaction transaction = TransactionTestUtils.getTransaction(10.0, null, AccountTestUtils.getAccount());
+		assertThrows(DataIntegrityViolationException.class, () -> transactionRepository.save(transaction));
+	}
+
+	@Test
+	void save_shouldThrowExceptionWhenAccountIsNull() {
+		Transaction transaction = TransactionTestUtils.getTransaction(10.0, OperationType.PURCHASE, null);
+		assertThrows(DataIntegrityViolationException.class, () -> transactionRepository.save(transaction));
 	}
 
 }
