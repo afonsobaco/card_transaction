@@ -1,6 +1,7 @@
 package aviz.pedro.card_transaction.service;
 
 import aviz.pedro.card_transaction.exception.AccountNotFoundException;
+import aviz.pedro.card_transaction.exception.IllegalOperationTypeException;
 import aviz.pedro.card_transaction.model.Account;
 import aviz.pedro.card_transaction.model.OperationType;
 import aviz.pedro.card_transaction.model.Transaction;
@@ -26,7 +27,7 @@ public class TransactionService implements ITransactionService {
 	public Transaction createTransaction(Long accountId, int operationTypeId, Double amount) {
 		OperationType operationType = OperationType.of(operationTypeId);
 		if ((operationType.isDecreaseValue() && amount > 0) || (!operationType.isDecreaseValue() && amount < 0)) {
-			throw new IllegalArgumentException(
+			throw new IllegalOperationTypeException(
 					String.format("The operation type %d (%s) does not allow the value %f", operationTypeId,
 							operationType.getDescription(), amount));
 		}

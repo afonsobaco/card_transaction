@@ -1,5 +1,6 @@
 package aviz.pedro.card_transaction.model;
 
+import aviz.pedro.card_transaction.exception.IllegalOperationTypeException;
 import lombok.Getter;
 
 import javax.persistence.Id;
@@ -26,6 +27,6 @@ public enum OperationType {
 
 	public static OperationType of(int operationTypeId) {
 		return Stream.of(OperationType.values()).filter(ot -> ot.getId() == operationTypeId).findFirst()
-				.orElseThrow(IllegalArgumentException::new);
+				.orElseThrow(IllegalOperationTypeException::new);
 	}
 }

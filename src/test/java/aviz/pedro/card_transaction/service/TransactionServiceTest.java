@@ -1,6 +1,7 @@
 package aviz.pedro.card_transaction.service;
 
 import aviz.pedro.card_transaction.exception.AccountNotFoundException;
+import aviz.pedro.card_transaction.exception.IllegalOperationTypeException;
 import aviz.pedro.card_transaction.model.Account;
 import aviz.pedro.card_transaction.model.OperationType;
 import aviz.pedro.card_transaction.model.Transaction;
@@ -70,7 +71,7 @@ class TransactionServiceTest {
 	@MethodSource("getIllegalArgumentTests")
 	void createTransaction_shouldThrowIllegalArgumentException(int operationTypeId, String description, Double amount,
 			boolean hasMessage) {
-		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+		IllegalOperationTypeException exception = assertThrows(IllegalOperationTypeException.class,
 				() -> transactionService.createTransaction(1L, operationTypeId, amount));
 		verify(transactionRepository, never()).save(any());
 		if (hasMessage) {
