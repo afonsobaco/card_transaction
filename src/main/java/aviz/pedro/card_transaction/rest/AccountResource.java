@@ -28,7 +28,7 @@ public class AccountResource {
 			tags = {"account"},
 			description = "Create account with the given document number",
 			responses = {
-					@ApiResponse(responseCode = "201", description = "Created successfully", content = @Content(schema = @Schema(implementation = Account.class))),
+					@ApiResponse(responseCode = "201", description = "Created successfully", content = @Content(schema = @Schema(implementation = AccountDto.class))),
 					@ApiResponse(responseCode = "400", description = "Invalid document number supplied")
 			})
 	public ResponseEntity<AccountDto> post(@RequestBody AccountDto accountDto) {
@@ -41,7 +41,7 @@ public class AccountResource {
 			tags = {"account"},
 			description = "Get account with the given id",
 			responses = {
-					@ApiResponse(description = "The account", content = @Content(schema = @Schema(implementation = Account.class))),
+					@ApiResponse(description = "The account", content = @Content(schema = @Schema(implementation = AccountDto.class))),
 					@ApiResponse(responseCode = "400", description = "Invalid id supplied"),
 					@ApiResponse(responseCode = "404", description = "Account not found")
 			})

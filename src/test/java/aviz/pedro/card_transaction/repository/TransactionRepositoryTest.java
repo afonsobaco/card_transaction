@@ -1,5 +1,7 @@
 package aviz.pedro.card_transaction.repository;
 
+import aviz.pedro.card_transaction.CardTransactionApplication;
+import aviz.pedro.card_transaction.config.JpaAuditingConfiguration;
 import aviz.pedro.card_transaction.model.Account;
 import aviz.pedro.card_transaction.model.OperationType;
 import aviz.pedro.card_transaction.model.Transaction;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -20,13 +23,14 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
 @Sql({ "/account.sql" })
+@ContextConfiguration(classes = { CardTransactionApplication.class, JpaAuditingConfiguration.class })
 class TransactionRepositoryTest {
 
 	@Autowired
 	TransactionRepository transactionRepository;
 
 	@Test
-	void save_shouldAutoGenerateAccountId() {
+	void save_shouldSaveSuccessfully() {
 		Double amount = 10.10;
 		OperationType operationType = OperationType.PURCHASE;
 		Account account = AccountTestUtils.getAccount();

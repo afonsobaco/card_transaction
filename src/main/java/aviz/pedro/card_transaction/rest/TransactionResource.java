@@ -32,7 +32,7 @@ public class TransactionResource {
 			tags = {"transaction"},
 			description = "Create transaction with the given information",
 			responses = {
-					@ApiResponse(responseCode = "201", description = "Created successfully", content = @Content(schema = @Schema(implementation = Transaction.class))),
+					@ApiResponse(responseCode = "201", description = "Created successfully", content = @Content(schema = @Schema(implementation = TransactionDto.class))),
 					@ApiResponse(responseCode = "400", description = "Invalid information supplied"),
 					@ApiResponse(responseCode = "404", description = "Account supplied not found")
 			})
