@@ -1,26 +1,27 @@
 package aviz.pedro.card_transaction.utils;
 
+import aviz.pedro.card_transaction.dto.AccountDto;
 import aviz.pedro.card_transaction.model.Account;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class AccountTestUtils {
 
-	public Account getAccount() {
-		return getAccount(12345678901L, 1L);
+	public static final long DOCUMENT_NUMBER = 191L;
+	public static final double LIMIT = 100.0;
+	public static final long ACCOUNT_ID = 1L;
+
+	public Account getAccountDefault() {
+		long documentNumber = DOCUMENT_NUMBER;
+		Double limit = LIMIT;
+		long accountId = ACCOUNT_ID;
+		return Account.builder().documentNumber(documentNumber).limit(limit).id(accountId).build();
 	}
 
-	public Account getAccount(Long documentNumber) {
-		return Account.builder()
-				.documentNumber(documentNumber)
-				.id(1L)
-				.build();
-	}
-
-	public Account getAccount(Long documentNumber, Long account_id) {
-		return Account.builder()
-				.documentNumber(documentNumber)
-				.id(account_id)
-				.build();
+	public AccountDto getAccountDtoDefault() {
+		long documentNumber = DOCUMENT_NUMBER;
+		Double limit = LIMIT;
+		long accountId = ACCOUNT_ID;
+		return AccountDto.builder().documentNumber(documentNumber).limit(limit).accountId(accountId).build();
 	}
 }

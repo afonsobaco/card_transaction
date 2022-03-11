@@ -1,7 +1,9 @@
 package aviz.pedro.card_transaction.service;
 
+import aviz.pedro.card_transaction.dto.AccountDto;
 import aviz.pedro.card_transaction.model.Account;
 import aviz.pedro.card_transaction.repository.AccountRepository;
+import aviz.pedro.card_transaction.utils.AccountTestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,8 +16,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AccountServiceTest {
@@ -28,32 +29,41 @@ class AccountServiceTest {
 
 	@Test
 	void createAccount_shouldCreateAndReturnAccount() {
-		long documentNumber = 123l;
 		when(accountRepository.save(any())).thenAnswer(x -> x.getArgument(0));
-		Account account = accountService.createAccount(documentNumber);
+		Account accountDefault = AccountTestUtils.getAccountDefault();
+
+		Account account = accountService.createAccount(accountDefault);
 		assertNotNull(account);
-		assertEquals(documentNumber, account.getDocumentNumber());
+		assertEquals(accountDefault.getDocumentNumber(), account.getDocumentNumber());
+	}
+
+	@Test
+	void createAccount_shouldCreateAndReturnAccountWhenLimitIsZero() {
+		when(accountRepository.save(any())).thenAnswer(x -> x.getArgument(0));
+		Account accountDefault = AccountTestUtils.getAccountDefault();
+		accountDefault.setLimit(0.0);
+
+		Account account = accountService.createAccount(accountDefault);
+		assertNotNull(account);
+		assertEquals(accountDefault.getDocumentNumber(), account.getDocumentNumber());
+		assertEquals(accountDefault.getLimit(), account.getLimit());
 	}
 
 	@Test
 	void getAccount_shouldReturnAccount() {
-		long accountId = 1l;
-		long documentNumber = 123l;
-		Account account = Account.builder()
-				.id(accountId)
-				.documentNumber(documentNumber)
-				.build();
+		Account accountDefault =  AccountTestUtils.getAccountDefault();
+		when(accountRepository.findById(accountDefault.getId())).thenReturn(Optional.ofNullable(accountDefault));
 
-		when(accountRepository.findById(accountId)).thenReturn(Optional.ofNullable(account));
-
-		Account result = accountService.getAccount(accountId);
+		Account result = accountService.getAccount(accountDefault.getId());
 		assertNotNull(result);
-		assertEquals(accountId, result.getId());
+		assertEquals(accountDefault.getId(), result.getId());
+		assertEquals(accountDefault.getDocumentNumber(), result.getDocumentNumber());
+		assertEquals(accountDefault.getLimit(), result.getLimit());
 	}
 
 	@Test
 	void getAccount_shouldReturnNull() {
-		long accountId = 1l;
+		long accountId = -9999l;
 		when(accountRepository.findById(accountId)).thenReturn(Optional.ofNullable(null));
 		Account result = accountService.getAccount(accountId);
 		assertNull(result);

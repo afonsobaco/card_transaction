@@ -31,17 +31,14 @@ class TransactionRepositoryTest {
 
 	@Test
 	void save_shouldSaveSuccessfully() {
-		Double amount = 10.10;
-		OperationType operationType = OperationType.PURCHASE;
-		Account account = AccountTestUtils.getAccount();
 
-		Transaction transaction = TransactionTestUtils.getTransaction(amount, operationType, account);
+		Transaction transaction = TransactionTestUtils.getTransactionDefault();
 		Transaction result = transactionRepository.save(transaction);
 
 		assertNotNull(result);
 		assertNotNull(result.getId());
-		assertEquals(account.getId(), result.getAccount().getId());
-		assertEquals(account.getDocumentNumber(), result.getAccount().getDocumentNumber());
+		assertEquals(transaction.getAccount().getId(), result.getAccount().getId());
+		assertEquals(transaction.getAccount().getDocumentNumber(), result.getAccount().getDocumentNumber());
 		assertEquals(transaction.getAmount(), result.getAmount());
 		assertEquals(transaction.getOperationType(), result.getOperationType());
 		assertNotNull(transaction.getEventDate());
@@ -49,20 +46,22 @@ class TransactionRepositoryTest {
 
 	@Test
 	void save_shouldThrowExceptionWhenAmountIsNull() {
-		Transaction transaction = TransactionTestUtils.getTransaction(null, OperationType.PURCHASE,
-				AccountTestUtils.getAccount());
+		Transaction transaction = TransactionTestUtils.getTransactionDefault();
+		transaction.setAmount(null);
 		assertThrows(DataIntegrityViolationException.class, () -> transactionRepository.save(transaction));
 	}
 
 	@Test
 	void save_shouldThrowExceptionWhenOperationTypeIsNull() {
-		Transaction transaction = TransactionTestUtils.getTransaction(10.0, null, AccountTestUtils.getAccount());
+		Transaction transaction = TransactionTestUtils.getTransactionDefault();
+		transaction.setOperationType(null);
 		assertThrows(DataIntegrityViolationException.class, () -> transactionRepository.save(transaction));
 	}
 
 	@Test
 	void save_shouldThrowExceptionWhenAccountIsNull() {
-		Transaction transaction = TransactionTestUtils.getTransaction(10.0, OperationType.PURCHASE, null);
+		Transaction transaction = TransactionTestUtils.getTransactionDefault();
+		transaction.setAccount(null);
 		assertThrows(DataIntegrityViolationException.class, () -> transactionRepository.save(transaction));
 	}
 

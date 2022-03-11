@@ -1,6 +1,7 @@
 package aviz.pedro.card_transaction.repository;
 
 import aviz.pedro.card_transaction.model.Account;
+import aviz.pedro.card_transaction.utils.AccountTestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,8 +24,8 @@ class AccountRepositoryTest {
 	@Test
 	void save_shouldAutoGenerateAccountId()
 	{
-		Long documentNumber = 12345678901L;
-		Account account = Account.builder().documentNumber(documentNumber).build();
+		Account account = AccountTestUtils.getAccountDefault();
+		account.setId(null);
 		Account result = accountRepository.save(account);
 		assertNotNull(result);
 		assertNotNull(result.getId());
@@ -35,6 +36,13 @@ class AccountRepositoryTest {
 	void save_shouldThrowExceptionWhenDocumentNumberIsNull()
 	{
 		Account account = Account.builder().documentNumber(null).build();
+		assertThrows(DataIntegrityViolationException.class, () ->  accountRepository.save(account));
+	}
+
+	@Test
+	void save_shouldThrowExceptionWhenAccountLimitIsNull()
+	{
+		Account account = Account.builder().limit(null).build();
 		assertThrows(DataIntegrityViolationException.class, () ->  accountRepository.save(account));
 	}
 

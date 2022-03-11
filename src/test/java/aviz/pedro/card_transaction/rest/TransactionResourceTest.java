@@ -6,6 +6,7 @@ import aviz.pedro.card_transaction.model.OperationType;
 import aviz.pedro.card_transaction.model.Transaction;
 import aviz.pedro.card_transaction.service.TransactionService;
 import aviz.pedro.card_transaction.service.TransactionService;
+import aviz.pedro.card_transaction.utils.TransactionTestUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -35,54 +36,20 @@ class TransactionResourceTest {
 
 	@Test
 	void post_shouldReturn201() throws Exception {
-		long documentNumber = 32132132149L;
-		long accountId = 11111L;
-		long transactionId = 987654321L;
-		OperationType operationType = OperationType.PAYMENT;
-		Double amount = 50.05;
-		LocalDateTime eventDate = LocalDateTime.now();
-		Account account = getAccount(documentNumber, accountId);
+		Transaction transaction = TransactionTestUtils.getTransactionDefault();
+		TransactionDto transactionDto = TransactionTestUtils.getTransactionDtoDefault();
 
-		Transaction transaction = getTransaction(transactionId, operationType, eventDate, amount, account);
-		TransactionDto transactionDto = getTransactionDto(operationType, amount, account);
-
-		when(transactionService.createTransaction(accountId, operationType.getId(), amount)).thenReturn(transaction);
+		when(transactionService.createTransaction(transactionDto.getAccountId(), transactionDto.getOperationTypeId(), transactionDto.getAmount())).thenReturn(transaction);
 
 		mockMvc.perform(MockMvcRequestBuilders.post("/transactions")
 						.content(getObjectAsString(transactionDto))
 						.contentType(MediaType.APPLICATION_JSON)
 						.accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isCreated())
-				.andExpect(jsonPath("$.account_id").value(accountId))
-				.andExpect(jsonPath("$.operation_type_id").value(operationType.getId()))
-				.andExpect(jsonPath("$.amount").value(amount))
+				.andExpect(jsonPath("$.account_id").value(transaction.getAccount().getId()))
+				.andExpect(jsonPath("$.operation_type_id").value(transaction.getOperationType().getId()))
+				.andExpect(jsonPath("$.amount").value(transaction.getAmount()))
 				.andReturn();
-	}
-
-	private Account getAccount(long documentNumber, long accountId) {
-		return Account.builder()
-				.id(accountId)
-				.documentNumber(documentNumber)
-				.build();
-	}
-
-	private Transaction getTransaction(long transactionId, OperationType operationType, LocalDateTime eventDate,
-			Double amount, Account account) {
-		return Transaction.builder()
-				.operationType(operationType)
-				.account(account)
-				.eventDate(eventDate)
-				.amount(amount)
-				.id(transactionId)
-				.build();
-	}
-
-	private TransactionDto getTransactionDto(OperationType operationType, Double amount, Account account) {
-		return TransactionDto.builder()
-				.operationTypeId(operationType.getId())
-				.accountId(account.getId())
-				.amount(amount)
-				.build();
 	}
 
 	private String getObjectAsString(Object object) {

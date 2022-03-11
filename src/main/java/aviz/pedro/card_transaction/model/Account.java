@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 @Data
 @Builder
@@ -21,4 +23,7 @@ public class Account {
 
 	@Column(name = "document_number", nullable = false)
 	private Long documentNumber;
+
+	@Column(name = "account_limit", nullable = false )
+	private Double limit;
 }

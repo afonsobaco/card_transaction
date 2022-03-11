@@ -31,18 +31,31 @@ public class TransactionService implements ITransactionService {
 					String.format("The operation type %d (%s) does not allow the value %f", operationTypeId,
 							operationType.getDescription(), amount));
 		}
-
 		Account account = accountService.getAccount(accountId);
 		if (account == null) {
 			throw new AccountNotFoundException(String.format("There is no account with id: %s", accountId));
 		}
+		Double newLimit = verifyLimit(account.getLimit(), operationType, amount);
+		account.setLimit(newLimit);
 
 		Transaction transaction = Transaction.builder()
 				.account(account)
 				.operationType(operationType)
 				.amount(amount)
 				.build();
-		return transactionRepository.save(transaction);
+		Transaction saved = transactionRepository.save(transaction);
+		accountService.updateAccount(account);
+		return saved;
+	}
+
+	private Double verifyLimit(Double limit, OperationType operationType, Double amount) {
+		double newLimit = limit + amount;
+		if (operationType.isDecreaseValue()) {
+			if (newLimit < 0) {
+				throw new IllegalArgumentException("The amount exceeds the account limit");
+			}
+		}
+		return newLimit;
 	}
 
 }

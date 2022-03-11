@@ -1,5 +1,6 @@
 package aviz.pedro.card_transaction.rest;
 
+import aviz.pedro.card_transaction.dto.AccountDto;
 import aviz.pedro.card_transaction.dto.TransactionDto;
 import aviz.pedro.card_transaction.model.Account;
 import aviz.pedro.card_transaction.model.Transaction;
@@ -44,4 +45,5 @@ public class TransactionResource {
 	private TransactionDto parseModelToDto(Transaction transaction) {
 		return new ModelMapper().map(transaction, TransactionDto.class);
 	}
+
 }

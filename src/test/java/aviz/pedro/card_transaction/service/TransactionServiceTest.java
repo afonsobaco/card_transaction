@@ -1,11 +1,14 @@
 package aviz.pedro.card_transaction.service;
 
+import aviz.pedro.card_transaction.dto.TransactionDto;
 import aviz.pedro.card_transaction.exception.AccountNotFoundException;
 import aviz.pedro.card_transaction.exception.IllegalOperationTypeException;
 import aviz.pedro.card_transaction.model.Account;
 import aviz.pedro.card_transaction.model.OperationType;
 import aviz.pedro.card_transaction.model.Transaction;
 import aviz.pedro.card_transaction.repository.TransactionRepository;
+import aviz.pedro.card_transaction.utils.AccountTestUtils;
+import aviz.pedro.card_transaction.utils.TransactionTestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -34,37 +37,29 @@ class TransactionServiceTest {
 
 	@Test
 	void createTransaction_shouldCreateTransaction() {
-		Long accountId = 1L;
-		OperationType operationType = OperationType.PAYMENT;
-		Double amount = 0.0;
-
-		Account account = Account.builder()
-				.id(accountId)
-				.documentNumber(123L)
-				.build();
-		when(accountService.getAccount(accountId)).thenReturn(account);
+		TransactionDto transactionDto = TransactionTestUtils.getTransactionDtoDefault();
+		Account accountDefault = AccountTestUtils.getAccountDefault();
+		when(accountService.getAccount(transactionDto.getAccountId())).thenReturn(accountDefault);
 		when(transactionRepository.save(any())).thenAnswer(x -> x.getArgument(0));
 
-		Transaction transaction = transactionService.createTransaction(accountId, operationType.getId(), amount);
+		Transaction transaction = transactionService.createTransaction(transactionDto.getAccountId(),
+				transactionDto.getOperationTypeId(), transactionDto.getAmount());
 		assertNotNull(transaction);
-		assertEquals(accountId, transaction.getAccount().getId());
-		assertEquals(operationType, transaction.getOperationType());
-		assertEquals(amount, transaction.getAmount());
+		assertEquals(transactionDto.getAccountId(), transaction.getAccount().getId());
+		assertEquals(transactionDto.getOperationTypeId(), transaction.getOperationType().getId());
+		assertEquals(transactionDto.getAmount(), transaction.getAmount());
 	}
 
 	@Test
 	void createTransaction_shouldThrowAccountNotFoundException() {
-		Long accountId = 1L;
-		int operationTypeId = 4;
-		Double amount = 0.0;
-
-		when(accountService.getAccount(accountId)).thenReturn(null);
+		TransactionDto transactionDto = TransactionTestUtils.getTransactionDtoDefault();
+		when(accountService.getAccount(transactionDto.getAccountId())).thenReturn(null);
 
 		AccountNotFoundException exception = assertThrows(AccountNotFoundException.class,
-				() -> transactionService.createTransaction(accountId, operationTypeId, amount));
-
+				() -> transactionService.createTransaction(transactionDto.getAccountId(),transactionDto.getOperationTypeId(), transactionDto.getAmount()));
 		verify(transactionRepository, never()).save(any());
-		assertEquals(String.format("There is no account with id: %s", accountId), exception.getMessage());
+		assertEquals(String.format("There is no account with id: %s", transactionDto.getAccountId()),
+				exception.getMessage());
 	}
 
 	@ParameterizedTest
@@ -72,12 +67,14 @@ class TransactionServiceTest {
 	void createTransaction_shouldThrowIllegalArgumentException(int operationTypeId, String description, Double amount,
 			boolean hasMessage) {
 		IllegalOperationTypeException exception = assertThrows(IllegalOperationTypeException.class,
-				() -> transactionService.createTransaction(1L, operationTypeId, amount));
+				() -> transactionService.createTransaction(AccountTestUtils.ACCOUNT_ID, operationTypeId, amount));
 		verify(transactionRepository, never()).save(any());
 		if (hasMessage) {
-			assertEquals(exception.getMessage(), String.format("The operation type %d (%s) does not allow the value %f", operationTypeId,
-					description, amount));
-		} else {
+			assertEquals(exception.getMessage(),
+					String.format("The operation type %d (%s) does not allow the value %f", operationTypeId,
+							description, amount));
+		}
+		else {
 			assertNull(exception.getMessage());
 		}
 	}

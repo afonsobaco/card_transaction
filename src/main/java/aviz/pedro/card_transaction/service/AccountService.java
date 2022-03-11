@@ -14,14 +14,17 @@ public class AccountService implements IAccountService {
 	}
 
 	@Override
-	public Account createAccount(Long documentNumber) {
-		Account account = Account.builder().documentNumber(documentNumber).build();
-		account.setDocumentNumber(documentNumber);
+	public Account createAccount(Account account) {
 		return accountRepository.save(account);
 	}
 
 	@Override
 	public Account getAccount(long accountId) {
 		return accountRepository.findById(accountId).orElse(null);
+	}
+
+	@Override
+	public Account updateAccount(Account account) {
+		return accountRepository.save(account);
 	}
 }

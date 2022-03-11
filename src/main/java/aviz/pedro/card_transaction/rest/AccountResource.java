@@ -13,6 +13,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping(path = "/accounts", produces = MediaType.APPLICATION_JSON_VALUE)
 public class AccountResource {
@@ -25,20 +27,20 @@ public class AccountResource {
 
 	@PostMapping
 	@Operation(summary = "Create account",
-			tags = {"account"},
+			tags = { "account" },
 			description = "Create account with the given document number",
 			responses = {
 					@ApiResponse(responseCode = "201", description = "Created successfully", content = @Content(schema = @Schema(implementation = AccountDto.class))),
 					@ApiResponse(responseCode = "400", description = "Invalid document number supplied")
 			})
-	public ResponseEntity<AccountDto> post(@RequestBody AccountDto accountDto) {
-		Account account = accountService.createAccount(accountDto.getDocumentNumber());
+	public ResponseEntity<AccountDto> post(@Valid @RequestBody AccountDto accountDto) {
+		Account account = accountService.createAccount(parseDtoToModel(accountDto));
 		return ResponseEntity.status(HttpStatus.CREATED).body(parseModelToDto(account));
 	}
 
 	@GetMapping("/{accountId}")
 	@Operation(summary = "Get account",
-			tags = {"account"},
+			tags = { "account" },
 			description = "Get account with the given id",
 			responses = {
 					@ApiResponse(description = "The account", content = @Content(schema = @Schema(implementation = AccountDto.class))),
@@ -55,6 +57,10 @@ public class AccountResource {
 
 	private AccountDto parseModelToDto(Account account) {
 		return new ModelMapper().map(account, AccountDto.class);
+	}
+
+	private Account parseDtoToModel(AccountDto accountDto) {
+		return new ModelMapper().map(accountDto, Account.class);
 	}
 
 }
