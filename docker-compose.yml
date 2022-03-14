@@ -1,5 +1,9 @@
 version: '3.8'
 services:
+  backend:
+    build: .
+    ports:
+      - '8080:8080'
   db:
     image: postgres:14.1-alpine
     restart: always
@@ -11,3 +15,8 @@ services:
       - '5432:5432'
     volumes:
       - ./db:/docker-entrypoint-initdb.d/
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:5432" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5

@@ -6,12 +6,14 @@ import aviz.pedro.card_transaction.model.Account;
 import aviz.pedro.card_transaction.model.OperationType;
 import aviz.pedro.card_transaction.model.Transaction;
 import aviz.pedro.card_transaction.repository.TransactionRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 /**
  * @author Pedro.Aviz
  */
 @Service
+@Slf4j
 public class TransactionService implements ITransactionService {
 
 	final TransactionRepository transactionRepository;
@@ -28,7 +30,7 @@ public class TransactionService implements ITransactionService {
 		OperationType operationType = OperationType.of(operationTypeId);
 		if ((operationType.isDecreaseValue() && amount > 0) || (!operationType.isDecreaseValue() && amount < 0)) {
 			throw new IllegalOperationTypeException(
-					String.format("The operation type %d (%s) does not allow the value %f", operationTypeId,
+					String.format("The operation type %d (%s) does not allow the value %.2f", operationTypeId,
 							operationType.getDescription(), amount));
 		}
 		Account account = accountService.getAccount(accountId);
@@ -45,6 +47,7 @@ public class TransactionService implements ITransactionService {
 				.build();
 		Transaction saved = transactionRepository.save(transaction);
 		accountService.updateAccount(account);
+		log.info("Transaction created for account {} with value {} and operationType {}", accountId, amount, operationType.getDescription());
 		return saved;
 	}
 
@@ -52,7 +55,7 @@ public class TransactionService implements ITransactionService {
 		double newLimit = limit + amount;
 		if (operationType.isDecreaseValue()) {
 			if (newLimit < 0) {
-				throw new IllegalArgumentException("The amount exceeds the account limit");
+				throw new IllegalArgumentException(String.format("The amount exceeds the account limit of %.2f", limit));
 			}
 		}
 		return newLimit;

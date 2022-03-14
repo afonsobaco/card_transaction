@@ -1,5 +1,6 @@
 package aviz.pedro.card_transaction.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ControllerAdvice
+@Slf4j
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
 	@Override
@@ -31,12 +33,22 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 			errors.add(error.getObjectName() + ": " + error.getDefaultMessage());
 		}
 		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), errors);
-		return handleExceptionInternal( ex, apiError, headers, apiError.getStatus(), request);
+		log.error(ex.getLocalizedMessage());
+		return handleExceptionInternal(ex, apiError, headers, apiError.getStatus(), request);
+	}
+
+	@ExceptionHandler({ IllegalArgumentException.class, IllegalOperationTypeException.class,
+			AccountNotFoundException.class })
+	public ResponseEntity<Object> handleBadRequests(Exception ex) {
+		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage());
+		log.error(ex.getLocalizedMessage());
+		return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());
 	}
 
 	@ExceptionHandler({ Exception.class })
 	public ResponseEntity<Object> handleAll(Exception ex, WebRequest request) {
-		ApiError apiError = new ApiError( HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage(), "error occurred");
-		return new ResponseEntity<Object>( apiError, new HttpHeaders(), apiError.getStatus());
+		ApiError apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, ex.getLocalizedMessage());
+		log.error(ex.getLocalizedMessage());
+		return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());
 	}
 }

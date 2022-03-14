@@ -27,6 +27,6 @@ public enum OperationType {
 
 	public static OperationType of(int operationTypeId) {
 		return Stream.of(OperationType.values()).filter(ot -> ot.getId() == operationTypeId).findFirst()
-				.orElseThrow(IllegalOperationTypeException::new);
+				.orElseThrow(() -> new IllegalOperationTypeException(String.format("Illegal OperationType %d ", operationTypeId)));
 	}
 }
